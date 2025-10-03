@@ -39,15 +39,62 @@ This project is a boilerplate for building scalable server-side applications usi
 - Local emulators for safe development
 - Example controller for Firestore writes
 
+## Project setup
+
+```bash
+$ yarn install
+```
+
+### Staging/Production Service Account Setup
+
+To run your NestJS backend with Firebase in staging or production, you need to set up a service account for secure access:
+
+1. Go to your Firebase Console, then navigate to **Project Settings > Service Accounts**.
+2. Click **Generate new private key**. This will download a JSON file containing your credentials.
+3. Move the downloaded file to your project at: `src/modules/firebase/serviceAccountKey.json`
+4. In your `.env` file, include the Firebase Realtime Database URL and any other required Firebase config values:
+```env
+FIREBASE_DATABASE_URL=
+# Add other Firebase config values here as needed
+```
+
+```bash
+# development
+$ yarn dev
+
+# staging
+$ yarn staging
+
+# production
+$ yarn production
+```
+
+## Deployment
+
+```bash
+# staging
+$ yarn deploy:staging
+# production
+$ yarn deploy:prod
+```
+
+Make sure you have configured your Firebase project aliases (staging, prod) using:
+```bash
+firebase use --add
+```
+
+For more details, see the [NestJS deployment documentation](https://docs.nestjs.com/deployment) and [Firebase CLI documentation](https://firebase.google.com/docs/cli).
+
 ## How to Connect Client (React) to Backend via Emulator
 
-1. **Start Firebase Emulators**
+1.Start Firebase Emulators
   ```bash
-  firebase emulators:start
+  $ yarn build && firebase:emulators:start # Build and Run
+  $ # or
+  yarn dev # Watching
   ```
 
-2. **Configure Client (React) to Use Emulators**
-  In your React app, after initializing Firebase:
+2.Configure Client to Use Emulators
   ```js
   import { initializeApp } from 'firebase/app';
   import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
@@ -61,72 +108,15 @@ This project is a boilerplate for building scalable server-side applications usi
   const db = getFirestore(firebaseApp);
 
   if (process.env.NODE_ENV === 'development') {
+    // Use settings at firebase.json
     connectFirestoreEmulator(db, 'http://localhost:8080');
     connectAuthEmulator(auth, 'http://localhost:9099');
   }
   ```
 
-3. **Connect to Backend API**
+3.Connect to Backend API
   - Make HTTP requests from your client to the NestJS backend (e.g., `http://localhost:5001/<project-id>/asia-southeast1/api` if using Firebase Functions emulator).
   - Ensure CORS is enabled in your NestJS app for local development.
-
-## Usage
-
-## Project setup
-
-```bash
-$ npm install
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ npm run dev
-or
-$ yarn dev 
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-
-## Deployment
-
-To deploy your NestJS + Firebase Functions project, use the provided npm scripts:
-
-- **Staging:**
-  ```bash
-  yarn deploy:staging
-  # or
-  npm run deploy:staging
-  ```
-  This will switch to your staging Firebase project and deploy your code.
-
-- **Production:**
-  ```bash
-  yarn deploy:prod
-  # or
-  npm run deploy:prod
-  ```
-  This will switch to your production Firebase project and deploy your code.
-
-Make sure you have configured your Firebase project aliases (staging, prod) using:
-```bash
-firebase use --add
-```
-
-For more details, see the [NestJS deployment documentation](https://docs.nestjs.com/deployment) and [Firebase CLI documentation](https://firebase.google.com/docs/cli).
 
 ## Resources
 
