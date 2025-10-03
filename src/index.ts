@@ -5,6 +5,9 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
 import express from 'express';
 
+// ----- Triggers -----
+export * from '@src/modules/firebase/triggers/onCreate';
+
 const expressServer = express();
 const createFunction = async (expressInstance): Promise<void> => {
   const app = await NestFactory.create(

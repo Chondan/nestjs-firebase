@@ -16,4 +16,11 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('test-firebase')
+  async testFirebase() {
+    const db = this.firebaseAdmin.firestore();
+    await db.collection('test').add({ name: 'test-trigger' });
+    return 'ok';
+  }
 }
