@@ -7,6 +7,8 @@ import config from '@src/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   imports: [
@@ -19,6 +21,10 @@ import { AppResolver } from './app.resolver';
     FirebaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AppResolver],
+  providers: [
+    { provide: APP_GUARD, useClass: AuthGuard },
+    AppService,
+    AppResolver,
+  ],
 })
 export class AppModule {}
