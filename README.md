@@ -49,14 +49,19 @@ This project is a boilerplate for building scalable server-side applications usi
 2. **Configure Client (React) to Use Emulators**
   In your React app, after initializing Firebase:
   ```js
+  import { initializeApp } from 'firebase/app';
   import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
-  import { getAuth, connectAuthEmulator } from 'firebase/auth';
+  import { getAuth, connectAuthEmulator, signInWithEmailAndPassword } from 'firebase/auth';
 
-  const db = getFirestore();
-  const auth = getAuth();
+
+  const firebaseApp = initializeApp({
+    apiKey: '', // Even with local env this apiKey still needed
+  });
+  const auth = getAuth(firebaseApp);
+  const db = getFirestore(firebaseApp);
 
   if (process.env.NODE_ENV === 'development') {
-    connectFirestoreEmulator(db, 'localhost', 8080);
+    connectFirestoreEmulator(db, 'http://localhost:8080');
     connectAuthEmulator(auth, 'http://localhost:9099');
   }
   ```
