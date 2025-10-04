@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
 import { ServiceAccount } from 'firebase-admin';
@@ -6,6 +6,7 @@ import serviceAccountJson from './serviceAccountKey.json';
 
 export const FIREBASE_ADMIN = Symbol('FIREBASE_ADMIN');
 
+@Global()
 @Module({
   providers: [
     {

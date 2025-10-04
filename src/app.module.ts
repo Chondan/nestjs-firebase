@@ -9,6 +9,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './guards/auth.guard';
+import { FileModule } from './modules/file/file.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AuthGuard } from './guards/auth.guard';
       playground: true,
     }),
     FirebaseModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [
