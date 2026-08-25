@@ -29,9 +29,13 @@ export const Public = () => SetMetadata(publicSymbol, true);
 @Injectable()
 export class AuthGuard implements CanActivate {
   @Inject(FIREBASE_ADMIN)
-  private readonly firebaseAdmin: typeof admin;
+  private readonly firebaseAdmin: typeof admin | undefined;
+
   constructor(private readonly reflector: Reflector) {}
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (!this.firebaseAdmin) return false;
+
     const { request, requestContext } = AuthGuard.getRequestContext(context);
     // ----- No Auth -----
     const isPublic = this.reflector.get<boolean | undefined>(
