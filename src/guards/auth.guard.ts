@@ -5,6 +5,8 @@ import {
   ExecutionContext,
   Inject,
   Injectable,
+  InternalServerErrorException,
+  ServiceUnavailableException,
   SetMetadata,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -34,31 +36,48 @@ export class AuthGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    if (!this.firebaseAdmin) return false;
+    const { request } = AuthGuard.getRequestContext(context);
 
-    const { request, requestContext } = AuthGuard.getRequestContext(context);
     // ----- No Auth -----
-    const isPublic = this.reflector.get<boolean | undefined>(
-      publicSymbol,
-      requestContext.getHandler(),
-    );
+    // Checked before the admin SDK so a misconfigured provider cannot block public routes.
+    const isPublic = this.reflector.getAllAndOverride<boolean>(publicSymbol, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
     if (isPublic) return true;
 
-    // ----- Auth -----
-    try {
-      const headers = request.headers;
-      const authorization = headers['authorization'] as string;
-      if (!authorization || !authorization.startsWith('Bearer '))
-        throw new UnauthorizedException();
+    if (!this.firebaseAdmin) {
+      throw new InternalServerErrorException(
+        'Firebase Admin is not configured',
+      );
+    }
 
-      // Validate token
-      const [, token] = authorization.split(' ');
-      const decodedToken = await this.firebaseAdmin.auth().verifyIdToken(token);
-      request.user = decodedToken;
+    // ----- Auth -----
+    const authorization = request.headers.authorization;
+    if (!authorization || !authorization.startsWith('Bearer ')) {
+      throw new UnauthorizedException();
+    }
+
+    const token = authorization.slice('Bearer '.length).trim();
+
+    try {
+      // true = also reject tokens issued before a password change, a disabled account or
+      // revokeRefreshTokens(), instead of honouring them for up to an hour.
+      request.user = await this.firebaseAdmin.auth().verifyIdToken(token, true);
 
       return true;
     } catch (err) {
-      console.error(err);
+      const code = (err as { code?: string }).code ?? 'unknown';
+      console.error(`[AuthGuard] verifyIdToken failed: ${code}`);
+
+      // An unreachable identity provider is an outage, not bad credentials.
+      if (
+        code === 'auth/network-request-failed' ||
+        code === 'auth/internal-error'
+      ) {
+        throw new ServiceUnavailableException();
+      }
+
       throw new UnauthorizedException();
     }
   }
