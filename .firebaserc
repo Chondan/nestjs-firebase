@@ -1,7 +1,6 @@
 {
   "projects": {
-    "default": "sass-lab",
-    "dev": "sass-lab",
+    "default": "saas-lab",
     "staging": "",
     "prod": ""
   }

@@ -2,7 +2,6 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
 import { ServiceAccount } from 'firebase-admin';
-import serviceAccountJson from './serviceAccountKey.json';
 
 export const FIREBASE_ADMIN = Symbol('FIREBASE_ADMIN');
 
@@ -16,11 +15,23 @@ export const FIREBASE_ADMIN = Symbol('FIREBASE_ADMIN');
           return admin.initializeApp();
         }
 
-        const serviceAccount = serviceAccountJson as ServiceAccount;
+        const serviceAccountJson = configService.getOrThrow<string>(
+          'firebase.FIREBASE_SERVICE_ACCOUNT_JSON',
+          { infer: true },
+        );
+        let serviceAccount: ServiceAccount;
+        try {
+          serviceAccount = JSON.parse(serviceAccountJson) as ServiceAccount;
+        } catch (error) {
+          throw new Error(
+            'FIREBASE_SERVICE_ACCOUNT_JSON must contain valid JSON.',
+            { cause: error },
+          );
+        }
 
         return admin.initializeApp({
           credential: admin.credential.cert(serviceAccount),
-          databaseURL: configService.getOrThrow(
+          databaseURL: configService.get<string>(
             'firebase.FIREBASE_DATABASE_URL',
           ),
         });

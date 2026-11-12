@@ -45,18 +45,21 @@ This project is a boilerplate for building scalable server-side applications usi
 $ yarn install
 ```
 
-### Staging/Production Service Account Setup
+### Environment and Firebase Service Account Setup
 
-To run your NestJS backend with Firebase in staging or production, you need to set up a service account for secure access:
+Environment files are loaded from `env/.env.<NODE_ENV>`. For local emulator development, copy `env/.env.sample` to `env/.env.dev`; the Firebase Admin SDK uses the emulator configuration and does not need a service account.
 
-1. Go to your Firebase Console, then navigate to **Project Settings > Service Accounts**.
-2. Click **Generate new private key**. This will download a JSON file containing your credentials.
-3. Move the downloaded file to your project at: `src/modules/firebase/serviceAccountKey.json`
-4. In your `.env` file, include the Firebase Realtime Database URL and any other required Firebase config values:
+For staging or production, create `env/.env.staging` or `env/.env.prod` and set `NODE_ENV` to match the filename. In Firebase Console, go to **Project Settings > Service Accounts** and generate a private key. Set `FIREBASE_SERVICE_ACCOUNT_JSON` to the contents of that JSON file on one line, and set `FIREBASE_DATABASE_URL` if the app uses Realtime Database. Keep these environment files and service-account credentials private; they are gitignored.
+
+Example:
 ```env
-FIREBASE_DATABASE_URL=
-# Add other Firebase config values here as needed
+NODE_ENV=staging
+APP_NAME=nestjs-firebase
+FIREBASE_DATABASE_URL=https://<your-project-id>-default-rtdb.firebaseio.com
+FIREBASE_SERVICE_ACCOUNT_JSON=
 ```
+
+Paste the complete, single-line contents of the downloaded service-account JSON after `FIREBASE_SERVICE_ACCOUNT_JSON=`. Do not commit the resulting environment file.
 
 ```bash
 # development

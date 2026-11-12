@@ -12,6 +12,7 @@ export default () => ({
     APP_NAME: process.env.APP_NAME,
   },
   firebase: {
+    FIREBASE_SERVICE_ACCOUNT_JSON: process.env.FIREBASE_SERVICE_ACCOUNT_JSON,
     FIREBASE_DATABASE_URL: process.env.FIREBASE_DATABASE_URL,
   },
 });
